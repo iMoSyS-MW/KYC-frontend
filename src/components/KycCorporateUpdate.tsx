@@ -30,6 +30,7 @@ import {
   Update
 } from '@mui/icons-material';
 import FloatingProgressIndicator from './FloatingProgressIndicator';
+import { defaultToastrOptions } from '../lib/security';
 
 declare const toastr: any;
 
@@ -120,16 +121,7 @@ const KycCorporateUpdate: React.FC = () => {
 
   useEffect(() => {
     if (typeof toastr !== 'undefined') {
-      toastr.options = {
-        closeButton: true,
-        newestOnTop: true,
-        progressBar: true,
-        positionClass: 'toast-top-right',
-        preventDuplicates: false,
-        timeOut: '5000',
-        showMethod: 'fadeIn',
-        hideMethod: 'fadeOut',
-      };
+      toastr.options = defaultToastrOptions;
     }
   }, []);
 

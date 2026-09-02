@@ -58,10 +58,7 @@ export function useSettings() {
   const loadSystemSettings = useCallback(async () => {
     setSettingsLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await axios.get('/api/admin/settings', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get('/api/admin/settings');
       setSystemSettings(normalizeSystemSettings(response.data));
     } catch (error) {
       console.error('Error loading system settings:', error);
@@ -126,10 +123,7 @@ export function useSettings() {
     setSettingsMessage(null);
 
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await axios.put('/api/admin/settings', systemSettings, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.put('/api/admin/settings', systemSettings);
       const saved = (response.data as any)?.settings;
       if (saved) setSystemSettings(normalizeSystemSettings(saved));
       setSettingsMessage({ type: 'success', text: 'Settings saved successfully!' });

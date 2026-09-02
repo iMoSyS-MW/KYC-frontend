@@ -10,6 +10,7 @@ import { StepContact } from './kyc-individual/StepContact';
 import { StepDeclarations } from './kyc-individual/StepDeclarations';
 import { IndividualFormData, FileSelections, FileInputRefs, STEPS, REQUIRED_FIELDS, REQUIRED_FIELDS_CONDITIONAL } from './kyc-individual/types';
 import SuccessModal from './ui/SuccessModal';
+import { defaultToastrOptions, sanitizeErrorMessage } from '../lib/security';
 
 declare const toastr: any;
 
@@ -25,23 +26,7 @@ const KycIndividual: React.FC = () => {
 
   useEffect(() => {
     if (typeof toastr !== 'undefined') {
-      toastr.options = {
-        closeButton: true,
-        debug: false,
-        newestOnTop: true,
-        progressBar: true,
-        positionClass: 'toast-top-right',
-        preventDuplicates: false,
-        onclick: null,
-        showDuration: '300',
-        hideDuration: '1000',
-        timeOut: '5000',
-        extendedTimeOut: '1000',
-        showEasing: 'swing',
-        hideEasing: 'linear',
-        showMethod: 'fadeIn',
-        hideMethod: 'fadeOut',
-      };
+      toastr.options = defaultToastrOptions;
     }
   }, []);
 
@@ -430,7 +415,8 @@ const KycIndividual: React.FC = () => {
       setShowSuccessModal(true);
     } catch (error: any) {
       console.error('Submission error:', error?.response?.data || error);
-      const errorMessage = error?.response?.data?.message || 'Failed to submit KYC. Please check your connection and try again.';
+      const rawMessage = error?.response?.data?.message || 'Failed to submit KYC. Please check your connection and try again.';
+      const errorMessage = sanitizeErrorMessage(rawMessage);
 
       if (typeof toastr !== 'undefined') {
         toastr.error(errorMessage, 'Submission Failed');

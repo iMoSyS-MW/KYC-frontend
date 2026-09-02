@@ -86,12 +86,9 @@ export function useAuth() {
     setPasswordMessage(null);
 
     try {
-      const token = localStorage.getItem('adminToken');
       await axios.put('/api/auth/change-password', {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       setPasswordMessage({ type: 'success', text: 'Password updated successfully!' });

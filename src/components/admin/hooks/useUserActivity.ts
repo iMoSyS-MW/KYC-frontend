@@ -13,10 +13,7 @@ export function useUserActivity() {
   const loadUserActivity = useCallback(async () => {
     setUserActivityLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await axios.get('/api/users/activity?all=true', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get('/api/users/activity?all=true');
       setUserActivityEntries((response.data as any[]).map(mapActivity));
     } catch (error) {
       console.error('Error loading user activity:', error);

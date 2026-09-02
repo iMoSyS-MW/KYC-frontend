@@ -27,12 +27,9 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({ path, name,
   useEffect(() => {
     let cancelled = false;
 
-    const token = localStorage.getItem('adminToken');
-
     axios
       .get(`/api/admin/file/${encodeURIComponent(rawName)}`, {
         responseType: 'blob',
-        headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
         if (cancelled) return;

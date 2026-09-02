@@ -9,6 +9,7 @@ import { StepSupportingDocuments } from './kyc-corporate/StepSupportingDocuments
 import { StepDeclaration } from './kyc-corporate/StepDeclaration';
 import { CorporateFormData, FileSelections, FileInputRefs, STEPS, REQUIRED_FIELDS } from './kyc-corporate/types';
 import SuccessModal from './ui/SuccessModal';
+import { defaultToastrOptions, sanitizeErrorMessage } from '../lib/security';
 
 declare const toastr: any;
 
@@ -24,23 +25,7 @@ const KycCorporate: React.FC = () => {
 
   useEffect(() => {
     if (typeof toastr !== 'undefined') {
-      toastr.options = {
-        closeButton: true,
-        debug: false,
-        newestOnTop: true,
-        progressBar: true,
-        positionClass: 'toast-top-right',
-        preventDuplicates: false,
-        onclick: null,
-        showDuration: '300',
-        hideDuration: '1000',
-        timeOut: '5000',
-        extendedTimeOut: '1000',
-        showEasing: 'swing',
-        hideEasing: 'linear',
-        showMethod: 'fadeIn',
-        hideMethod: 'fadeOut',
-      };
+      toastr.options = defaultToastrOptions;
     }
   }, []);
 
@@ -333,7 +318,8 @@ const KycCorporate: React.FC = () => {
       setShowSuccessModal(true);
     } catch (error: any) {
       console.error('Submission error:', error?.response?.data || error);
-      const errorMessage = error?.response?.data?.message || 'Failed to submit KYC. Please check your connection and try again.';
+      const rawMessage = error?.response?.data?.message || 'Failed to submit KYC. Please check your connection and try again.';
+      const errorMessage = sanitizeErrorMessage(rawMessage);
 
       if (typeof toastr !== 'undefined') {
         toastr.error(errorMessage, 'Submission Failed');

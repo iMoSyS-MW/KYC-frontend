@@ -245,14 +245,11 @@ const AdminDashboard: React.FC = () => {
     }
 
     try {
-      const token = localStorage.getItem('adminToken');
       await axios.put(`/api/admin/submission/${id}/status`, {
         status,
         comments,
         nextAction,
         dueDate
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       await loadSubmissions();
       showToast('success', 'Status updated successfully');
@@ -279,12 +276,9 @@ const AdminDashboard: React.FC = () => {
     if (!confirmed) return;
 
     try {
-      const token = localStorage.getItem('adminToken');
       await axios.post('/api/admin/request', {
         submissionId: selectedSubmission._id,
         message: requestMessage
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       await updateSubmissionStatus(selectedSubmission._id, 'needs_info', requestMessage, undefined, undefined, true);

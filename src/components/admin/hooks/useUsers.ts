@@ -28,10 +28,7 @@ export function useUsers(currentUser: any, hasCurrentRole: (role: string) => boo
 
   const loadUsers = useCallback(async () => {
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await axios.get('/api/users', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get('/api/users');
       setUsers((response.data as any[]).map(mapUser));
     } catch (error) {
       console.error('Error loading users:', error);
@@ -81,7 +78,6 @@ export function useUsers(currentUser: any, hasCurrentRole: (role: string) => boo
 
     setUserActionLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
       await axios.post('/api/users', {
         username: userForm.username,
         email: userForm.email,
@@ -90,8 +86,6 @@ export function useUsers(currentUser: any, hasCurrentRole: (role: string) => boo
         roles: userForm.roles,
         accessTypes: userForm.accessTypes,
         isActive: userForm.isActive
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       setShowUserModal(false);
@@ -139,7 +133,6 @@ export function useUsers(currentUser: any, hasCurrentRole: (role: string) => boo
 
     setUserActionLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
       await axios.put(`/api/users/${editingUser._id}`, {
         username: userForm.username,
         email: userForm.email,
@@ -148,8 +141,6 @@ export function useUsers(currentUser: any, hasCurrentRole: (role: string) => boo
         roles: userForm.roles,
         accessTypes: userForm.accessTypes,
         isActive: userForm.isActive
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       setShowUserModal(false);
@@ -184,10 +175,7 @@ export function useUsers(currentUser: any, hasCurrentRole: (role: string) => boo
 
     setUserActionLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      await axios.put(`/api/users/${user._id}/reset-password`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.put(`/api/users/${user._id}/reset-password`);
       await loadUsers();
       return { success: true, message: 'Password reset successfully' };
     } catch (error: any) {
@@ -209,10 +197,7 @@ export function useUsers(currentUser: any, hasCurrentRole: (role: string) => boo
 
     setUserActionLoading(true);
     try {
-      const token = localStorage.getItem('adminToken');
-      await axios.delete(`/api/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.delete(`/api/users/${userId}`);
       await loadUsers();
       return { success: true, message: 'User deleted successfully' };
     } catch (error: any) {

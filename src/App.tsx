@@ -17,6 +17,7 @@ import AdminDashboard from './components/AdminDashboard';
 import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ConfirmationDialogProvider } from './context/ConfirmationDialogContext';
+import { defaultToastrOptions } from './lib/security';
 
 declare global {
   interface Window {
@@ -162,23 +163,7 @@ function App() {
   useEffect(() => {
     const configureToastr = () => {
       if (window.toastr) {
-        window.toastr.options = {
-          closeButton: true,
-          debug: false,
-          newestOnTop: true,
-          progressBar: true,
-          positionClass: 'toast-top-right',
-          preventDuplicates: false,
-          onclick: null,
-          showDuration: '300',
-          hideDuration: '1000',
-          timeOut: '5000',
-          extendedTimeOut: '1000',
-          showEasing: 'swing',
-          hideEasing: 'linear',
-          showMethod: 'fadeIn',
-          hideMethod: 'fadeOut',
-        };
+        window.toastr.options = defaultToastrOptions;
       } else {
         setTimeout(configureToastr, 100);
       }

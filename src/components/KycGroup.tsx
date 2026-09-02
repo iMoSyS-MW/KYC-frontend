@@ -9,6 +9,7 @@ import { StepSignatories } from './kyc-group/StepSignatories';
 import { StepDeclaration } from './kyc-group/StepDeclaration';
 import { GroupFormData, FileSelections, FileInputRefs, STEPS, REQUIRED_FIELDS, SIGNATORY_REQUIRED_FIELDS } from './kyc-group/types';
 import SuccessModal from './ui/SuccessModal';
+import { defaultToastrOptions, sanitizeErrorMessage } from '../lib/security';
 
 declare const toastr: any;
 
@@ -24,23 +25,7 @@ const KycGroup: React.FC = () => {
 
   useEffect(() => {
     if (typeof toastr !== 'undefined') {
-      toastr.options = {
-        closeButton: true,
-        debug: false,
-        newestOnTop: true,
-        progressBar: true,
-        positionClass: 'toast-top-right',
-        preventDuplicates: false,
-        onclick: null,
-        showDuration: '300',
-        hideDuration: '1000',
-        timeOut: '5000',
-        extendedTimeOut: '1000',
-        showEasing: 'swing',
-        hideEasing: 'linear',
-        showMethod: 'fadeIn',
-        hideMethod: 'fadeOut',
-      };
+      toastr.options = defaultToastrOptions;
     }
   }, []);
 

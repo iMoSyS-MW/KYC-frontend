@@ -35,11 +35,7 @@ export function useSubmissions(currentUser: any) {
 
   const loadSubmissions = useCallback(async () => {
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await axios.get('/api/admin/submissions', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
+      const response = await axios.get('/api/admin/submissions');
       const mapped = (response.data as any[]).map(mapSubmission);
       setSubmissions(mapped);
       calculateStats(mapped);
