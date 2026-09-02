@@ -1,10 +1,12 @@
 import * as React from "react"
+import { Eye, EyeOff } from "lucide-react"
 import { cn } from "../../lib/utils"
 
 export interface FloatingInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label: React.ReactNode
   error?: boolean
+  showPasswordToggle?: boolean
 }
 
 const ErrorIndicator = () => (
@@ -14,10 +16,16 @@ const ErrorIndicator = () => (
 )
 
 const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
-  ({ className, label, error, id, value, onFocus, onBlur, ...props }, ref) => {
+  ({ className, label, error, showPasswordToggle, id, value, onFocus, onBlur, type, ...props }, ref) => {
     const [focused, setFocused] = React.useState(false)
+    const [showPassword, setShowPassword] = React.useState(false)
     const hasValue = value != null && value !== ''
     const floated = hasValue || focused
+
+    const isPassword = type === "password"
+    const effectiveType = showPasswordToggle && isPassword
+      ? (showPassword ? "text" : "password")
+      : type
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
       setFocused(true)
@@ -44,6 +52,7 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
           value={value}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          type={effectiveType}
           className={cn(
             "h-12 w-full rounded-lg border bg-white pr-10 pl-3 text-sm text-gray-900 outline-none transition-colors",
             "focus:ring-2 focus:ring-offset-0",
@@ -54,6 +63,20 @@ const FloatingInput = React.forwardRef<HTMLInputElement, FloatingInputProps>(
           )}
           {...props}
         />
+        {showPasswordToggle && isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className={cn(
+              "absolute top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none",
+              error ? "right-10" : "right-3"
+            )}
+            tabIndex={-1}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
+        )}
         {error && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <ErrorIndicator />

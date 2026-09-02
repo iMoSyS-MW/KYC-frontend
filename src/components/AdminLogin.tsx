@@ -134,6 +134,7 @@ const AdminLogin: React.FC = () => {
           <FloatingInput
             label="Password"
             type="password"
+            showPasswordToggle
             value={credentials.password}
             onChange={(e) => handleInputChange('password', e.target.value)}
             disabled={passwordChangeRequired}
@@ -144,6 +145,7 @@ const AdminLogin: React.FC = () => {
               <FloatingInput
                 label="New Password"
                 type="password"
+                showPasswordToggle
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { handleSubmit(e); } }}
@@ -154,6 +156,7 @@ const AdminLogin: React.FC = () => {
               <FloatingInput
                 label="Confirm New Password"
                 type="password"
+                showPasswordToggle
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { handleSubmit(e); } }}

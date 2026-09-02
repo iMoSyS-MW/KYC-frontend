@@ -93,6 +93,7 @@ export default function PasswordModal({
           <FloatingInput
             label="Current Password"
             type="password"
+            showPasswordToggle
             value={passwordForm.currentPassword}
             onChange={(e) =>
               setPasswordForm((prev) => ({
@@ -105,6 +106,7 @@ export default function PasswordModal({
           <FloatingInput
             label="New Password"
             type="password"
+            showPasswordToggle
             value={passwordForm.newPassword}
             onChange={(e) =>
               setPasswordForm((prev) => ({
@@ -117,6 +119,7 @@ export default function PasswordModal({
           <FloatingInput
             label="Confirm Password"
             type="password"
+            showPasswordToggle
             value={passwordForm.confirmPassword}
             onChange={(e) =>
               setPasswordForm((prev) => ({
