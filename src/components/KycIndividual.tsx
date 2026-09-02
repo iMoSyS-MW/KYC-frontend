@@ -439,6 +439,72 @@ const KycIndividual: React.FC = () => {
     setLoading(false);
   };
 
+  const isStepValid = (step: number): boolean => {
+    if (step === 0) {
+      return (
+        !!formData.firstName.trim() &&
+        !!formData.lastName.trim() &&
+        !!formData.gender &&
+        !!formData.maritalStatus &&
+        !!formData.physicalAddress.trim() &&
+        !!formData.postalAddress.trim() &&
+        !!formData.proofOfAddress &&
+        !!formData.documents.proofOfAddress &&
+        formData.policyNumbers.filter((p) => p.trim()).length > 0
+      );
+    }
+    if (step === 1) {
+      if (
+        !formData.idType ||
+        !formData.idNumber.trim() ||
+        !formData.dateOfBirth ||
+        !formData.idExpiryDate ||
+        !formData.countryOfResidence ||
+        !formData.nationality
+      ) {
+        return false;
+      }
+      if (formData.idType === 'National ID') {
+        return !!formData.documents.identificationFront && !!formData.documents.identificationBack;
+      }
+      return !!formData.documents.identification;
+    }
+    if (step === 2) {
+      if (!formData.sourceOfIncome || !formData.documents.sourceOfIncome || !formData.sourceOfFunds.trim()) {
+        return false;
+      }
+      if (formData.sourceOfIncome === 'Employment') {
+        return (
+          !!formData.employerName.trim() &&
+          !!formData.employmentStartDate &&
+          !!formData.monthlyNetIncome.trim()
+        );
+      }
+      if (formData.sourceOfIncome === 'Business') {
+        return (
+          !!formData.businessType.trim() &&
+          !!formData.businessAddress.trim() &&
+          !!formData.businessMonthlyIncome.trim()
+        );
+      }
+      return true;
+    }
+    if (step === 3) {
+      return (
+        !!formData.nextOfKinName.trim() &&
+        !!formData.nextOfKinRelationship &&
+        !!formData.nextOfKinOccupation.trim() &&
+        !!formData.cellNumber.trim() &&
+        !!formData.emailAddress.trim() &&
+        !!formData.preferredCommunication
+      );
+    }
+    if (step === 4) {
+      return !!formData.isPEP && !!formData.relatedToPEP;
+    }
+    return true;
+  };
+
   const handleNext = () => {
     setActiveStep((prev) => prev + 1);
   };
@@ -501,6 +567,7 @@ const KycIndividual: React.FC = () => {
         onSubmit={handleSubmit}
         isLastStep={activeStep === STEPS.length - 1}
         isSubmitting={loading}
+        nextDisabled={!isStepValid(activeStep)}
         validationError={validationError}
         validationErrorStep={validationErrorStep}
         validationErrorStepLabel={validationErrorStep !== undefined ? STEPS[validationErrorStep].label : undefined}

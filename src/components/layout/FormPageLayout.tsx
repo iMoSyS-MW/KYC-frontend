@@ -12,6 +12,7 @@ interface FormPageLayoutProps {
   onSubmit?: () => void;
   isLastStep: boolean;
   isSubmitting: boolean;
+  nextDisabled?: boolean;
   children: React.ReactNode;
   validationError?: string;
   validationErrorStep?: number;
@@ -30,6 +31,7 @@ const FormPageLayout: React.FC<FormPageLayoutProps> = ({
   onSubmit,
   isLastStep,
   isSubmitting,
+  nextDisabled,
   children,
   validationError,
   validationErrorStep,
@@ -92,7 +94,7 @@ const FormPageLayout: React.FC<FormPageLayoutProps> = ({
             {isLastStep ? (
               <Button
                 onClick={onSubmit}
-                disabled={isSubmitting}
+                disabled={isSubmitting || nextDisabled}
                 className="px-8 bg-gradient-to-r from-om-gradient-start to-om-gradient-end hover:from-om-gradient-hover-start hover:to-om-gradient-hover-end"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit KYC'}
@@ -100,6 +102,7 @@ const FormPageLayout: React.FC<FormPageLayoutProps> = ({
             ) : (
               <Button
                 onClick={onNext}
+                disabled={nextDisabled}
                 className="px-8 bg-gradient-to-r from-om-gradient-start to-om-gradient-end hover:from-om-gradient-hover-start hover:to-om-gradient-hover-end"
               >
                 Next

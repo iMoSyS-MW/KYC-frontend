@@ -10,7 +10,7 @@ export interface FileInputRefs {
 }
 
 interface FileUploadAreaProps {
-  label: string;
+  label: React.ReactNode;
   field: string;
   error?: string;
   fileSelections: FileSelections;

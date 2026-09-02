@@ -144,7 +144,7 @@ export const StepSignatories: React.FC<StepSignatoriesProps> = ({
             <div>
               <FloatingInput
                 id={`signatory-${index}-fullName`}
-                label="Full Name *"
+                label={<>Full Name <span className="text-om-error">*</span></>}
                 value={signatory.fullName}
                 onChange={(e) => updateSignatory(index, 'fullName', e.target.value)}
                 error={!!errors[`signatory_${index}_fullName`]}
@@ -160,7 +160,7 @@ export const StepSignatories: React.FC<StepSignatoriesProps> = ({
             <div>
               <FloatingInput
                 id={`signatory-${index}-phone`}
-                label="Phone Number *"
+                label={<>Phone Number <span className="text-om-error">*</span></>}
                 value={signatory.phone}
                 onChange={(e) => updateSignatory(index, 'phone', e.target.value)}
                 error={!!errors[`signatory_${index}_phone`]}
@@ -179,7 +179,7 @@ export const StepSignatories: React.FC<StepSignatoriesProps> = ({
             <div>
               <FloatingInput
                 id={`signatory-${index}-email`}
-                label="Email Address *"
+                label={<>Email Address <span className="text-om-error">*</span></>}
                 value={signatory.email}
                 onChange={(e) => updateSignatory(index, 'email', e.target.value)}
                 error={!!errors[`signatory_${index}_email`]}
@@ -195,7 +195,7 @@ export const StepSignatories: React.FC<StepSignatoriesProps> = ({
             <div>
               <FloatingInput
                 id={`signatory-${index}-occupation`}
-                label="Occupation *"
+                label={<>Occupation <span className="text-om-error">*</span></>}
                 value={signatory.occupation}
                 onChange={(e) => updateSignatory(index, 'occupation', e.target.value)}
                 error={!!errors[`signatory_${index}_occupation`]}
@@ -213,7 +213,7 @@ export const StepSignatories: React.FC<StepSignatoriesProps> = ({
           <div className="mb-4">
               <FloatingInput
                 id={`signatory-${index}-address`}
-                label="Address *"
+                label={<>Address <span className="text-om-error">*</span></>}
                 value={signatory.address}
                 onChange={(e) => updateSignatory(index, 'address', e.target.value)}
                 error={!!errors[`signatory_${index}_address`]}
@@ -230,7 +230,7 @@ export const StepSignatories: React.FC<StepSignatoriesProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <FloatingSelect
-                label="ID Type *"
+                label={<>ID Type <span className="text-om-error">*</span></>}
                 value={signatory.idType}
                 onValueChange={(value) => handleSignatoryIdTypeChange(index, value)}
                 error={!!errors[`signatory_${index}_idType`]}
@@ -248,7 +248,7 @@ export const StepSignatories: React.FC<StepSignatoriesProps> = ({
             </div>
             <div>
               <FloatingSelect
-                label="Address Proof Type *"
+                label={<>Address Proof Type <span className="text-om-error">*</span></>}
                 value={signatory.addressProof}
                 onValueChange={(value) => updateSignatory(index, 'addressProof', value)}
                 error={!!errors[`signatory_${index}_addressProof`]}

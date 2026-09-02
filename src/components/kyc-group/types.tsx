@@ -90,6 +90,12 @@ export const isRequired = (fieldName: string): boolean => {
   return fieldName in REQUIRED_FIELDS;
 };
 
-export const requiredLabel = (label: string, fieldName: string): string => {
-  return isRequired(fieldName) ? `${label} *` : label;
+export const requiredLabel = (label: string, fieldName: string): React.ReactNode => {
+  return isRequired(fieldName) ? (
+    <>
+      {label} <span className="text-om-error">*</span>
+    </>
+  ) : (
+    label
+  );
 };

@@ -517,6 +517,56 @@ const KycIndividualUpdate: React.FC = () => {
     return !nextErrors.identificationFile && !nextErrors.identificationFrontFile && !nextErrors.identificationBackFile;
   };
 
+  const isStepValid = (step: number): boolean => {
+    switch (step) {
+      case 0:
+        return (
+          !!formData.firstName.trim() &&
+          !!formData.lastName.trim() &&
+          !!formData.gender &&
+          !!formData.maritalStatus &&
+          !!formData.physicalAddress.trim() &&
+          !!formData.postalAddress.trim() &&
+          !!formData.proofOfAddress &&
+          formData.policyNumbers.filter(p => p.trim()).length > 0
+        );
+      case 1:
+        return (
+          !!formData.idType &&
+          !!formData.idNumber.trim() &&
+          !!formData.dateOfBirth &&
+          !!formData.idExpiryDate &&
+          !!formData.countryOfResidence &&
+          !!formData.nationality &&
+          (formData.idType === 'National ID'
+            ? !!formData.documents.identificationFront && !!formData.documents.identificationBack
+            : !!formData.documents.identification)
+        );
+      case 2:
+        if (!formData.sourceOfIncome || !formData.sourceOfFunds.trim()) return false;
+        if (formData.sourceOfIncome === 'Employment') {
+          return !!formData.employerName.trim() && !!formData.employmentStartDate && !!formData.monthlyNetIncome.trim();
+        }
+        if (formData.sourceOfIncome === 'Business') {
+          return !!formData.businessType.trim() && !!formData.businessAddress.trim() && !!formData.businessMonthlyIncome.trim();
+        }
+        return true;
+      case 3:
+        return (
+          !!formData.nextOfKinName.trim() &&
+          !!formData.nextOfKinRelationship &&
+          !!formData.nextOfKinOccupation.trim() &&
+          !!formData.cellNumber.trim() &&
+          !!formData.emailAddress.trim() &&
+          !!formData.preferredCommunication
+        );
+      case 4:
+        return formData.termsAgreement === true;
+      default:
+        return true;
+    }
+  };
+
   const handleNext = () => {
     if (activeStep === 1 && !validateIdentificationDocuments()) {
       setValidationError('Please attach all required identification documents');
@@ -1015,6 +1065,7 @@ const KycIndividualUpdate: React.FC = () => {
                       {index < steps.length - 1 ? (
                         <Button
                           onClick={handleNext}
+                          disabled={!isStepValid(activeStep)}
                           variant="contained"
                           size="small"
                           sx={{

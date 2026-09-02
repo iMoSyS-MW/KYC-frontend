@@ -3,7 +3,7 @@ import { cn } from "../../lib/utils"
 
 export interface FloatingTextareaProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label: string
+  label: React.ReactNode
   error?: boolean
 }
 

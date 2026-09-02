@@ -10,7 +10,7 @@ const ErrorIndicator = () => (
 )
 
 export interface FloatingSelectProps {
-  label: string
+  label: React.ReactNode
   error?: boolean
   value?: string | undefined
   onValueChange?: (value: string) => void

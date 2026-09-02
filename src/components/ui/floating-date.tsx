@@ -3,7 +3,7 @@ import { X } from "lucide-react"
 import { cn } from "../../lib/utils"
 
 export interface FloatingDateProps {
-  label: string
+  label: React.ReactNode
   value: string
   onChange: (value: string) => void
   error?: boolean
@@ -25,7 +25,7 @@ const FloatingDate: React.FC<FloatingDateProps> = ({
   id,
   className,
 }) => {
-  const inputId = id || `date-${label.replace(/\s+/g, '-').toLowerCase()}`
+  const inputId = id || React.useId()
   const hasValue = !!value
   const [focused, setFocused] = React.useState(false)
   const floated = hasValue || focused

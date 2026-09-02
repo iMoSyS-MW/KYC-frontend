@@ -207,6 +207,38 @@ const KycCorporateUpdate: React.FC = () => {
     { label: 'Declaration', icon: CheckCircle },
   ];
 
+  const isStepValid = (step: number): boolean => {
+    switch (step) {
+      case 0:
+        return (
+          !!formData.organizationName.trim() &&
+          formData.products.length > 0 &&
+          formData.schemeNumbers.filter(s => s.trim()).length > 0 &&
+          !!formData.identificationDocument
+        );
+      case 1:
+        return (
+          !!formData.phone.trim() &&
+          !!formData.address.trim() &&
+          !!formData.contactPersonName.trim() &&
+          !!formData.contactPersonPhone.trim() &&
+          !!formData.contactPersonEmail.trim() &&
+          !!formData.addressProof
+        );
+      case 2:
+        return (
+          !!formData.articlesOfAssociation &&
+          !!formData.directorsId &&
+          !!formData.sourceOfFunds &&
+          !!formData.bankAccountProof
+        );
+      case 3:
+        return formData.declaration === true;
+      default:
+        return true;
+    }
+  };
+
   const getStepCompleteness = (stepIndex: number): { completed: boolean; percentage: number } => {
     switch (stepIndex) {
       case 0: {
@@ -623,7 +655,7 @@ const KycCorporateUpdate: React.FC = () => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
         <Button onClick={() => setActiveStep(prev => Math.max(prev - 1, 0))} disabled={activeStep === 0} variant="outlined">Back</Button>
         {activeStep < steps.length - 1 ? (
-          <Button onClick={() => setActiveStep(prev => Math.min(prev + 1, steps.length - 1))} variant="contained">Next</Button>
+          <Button onClick={() => setActiveStep(prev => Math.min(prev + 1, steps.length - 1))} disabled={!isStepValid(activeStep)} variant="contained">Next</Button>
         ) : (
           <Button onClick={handleSubmit} disabled={loading} variant="contained" size="large" sx={{ px: 4, background: loading ? '#ccc' : 'linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)' }}>
             {loading ? 'Updating...' : 'Submit Corporate KYC Update'}

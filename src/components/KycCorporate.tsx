@@ -342,6 +342,45 @@ const KycCorporate: React.FC = () => {
     setLoading(false);
   };
 
+  const isStepValid = (step: number): boolean => {
+    if (step === 0) {
+      return (
+        !!formData.organizationName.trim() &&
+        formData.products.length > 0 &&
+        formData.schemeNumbers.filter((s) => s.trim()).length > 0 &&
+        !!formData.identificationDocument &&
+        !!formData.documents.identification
+      );
+    }
+    if (step === 1) {
+      return (
+        !!formData.phone.trim() &&
+        !!formData.address.trim() &&
+        !!formData.contactPersonName.trim() &&
+        !!formData.contactPersonPhone.trim() &&
+        !!formData.contactPersonEmail.trim() &&
+        !!formData.addressProof &&
+        !!formData.documents.addressProof
+      );
+    }
+    if (step === 2) {
+      return (
+        !!formData.articlesOfAssociation &&
+        !!formData.documents.articles &&
+        !!formData.directorsId &&
+        !!formData.documents.directorsId &&
+        !!formData.sourceOfFunds &&
+        !!formData.documents.sourceOfFunds &&
+        !!formData.bankAccountProof &&
+        !!formData.documents.bankAccount
+      );
+    }
+    if (step === 3) {
+      return formData.declaration === true;
+    }
+    return true;
+  };
+
   const handleNext = () => {
     setActiveStep((prev) => prev + 1);
   };
@@ -398,6 +437,7 @@ const KycCorporate: React.FC = () => {
         onSubmit={handleSubmit}
         isLastStep={activeStep === STEPS.length - 1}
         isSubmitting={loading}
+        nextDisabled={!isStepValid(activeStep)}
         validationError={validationError}
         validationErrorStep={validationErrorStep}
         validationErrorStepLabel={validationErrorStep !== undefined ? STEPS[validationErrorStep].label : undefined}

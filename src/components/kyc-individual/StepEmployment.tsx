@@ -73,7 +73,7 @@ export const StepEmployment: React.FC<StepProps> = ({
             <div>
               <FloatingInput
                 id="employerName"
-                label={REQUIRED_FIELDS_CONDITIONAL.Employment.employerName.replace(' is required', '') + ' *'}
+                label={<>{REQUIRED_FIELDS_CONDITIONAL.Employment.employerName.replace(' is required', '')} <span className="text-om-error">*</span></>}
                 value={formData.employerName}
                 onChange={(e) => handleInputChange('employerName', e.target.value)}
                 error={!!errors.employerName}
@@ -89,7 +89,7 @@ export const StepEmployment: React.FC<StepProps> = ({
             <div>
               <FloatingDate
                 id="employmentStartDate"
-                label={REQUIRED_FIELDS_CONDITIONAL.Employment.employmentStartDate.replace(' is required', '') + ' *'}
+                label={<>{REQUIRED_FIELDS_CONDITIONAL.Employment.employmentStartDate.replace(' is required', '')} <span className="text-om-error">*</span></>}
                 value={formData.employmentStartDate}
                 onChange={(value) => handleInputChange('employmentStartDate', value)}
                 error={!!errors.employmentStartDate}
@@ -104,7 +104,7 @@ export const StepEmployment: React.FC<StepProps> = ({
             <div>
               <FloatingInput
                 id="monthlyNetIncome"
-                label={REQUIRED_FIELDS_CONDITIONAL.Employment.monthlyNetIncome.replace(' is required', '') + ' *'}
+                label={<>{REQUIRED_FIELDS_CONDITIONAL.Employment.monthlyNetIncome.replace(' is required', '')} <span className="text-om-error">*</span></>}
                 type="number"
                 value={formData.monthlyNetIncome}
                 onChange={(e) => handleInputChange('monthlyNetIncome', e.target.value)}
@@ -128,7 +128,7 @@ export const StepEmployment: React.FC<StepProps> = ({
             <div>
               <FloatingInput
                 id="businessType"
-                label={REQUIRED_FIELDS_CONDITIONAL.Business.businessType.replace(' is required', '') + ' *'}
+                label={<>{REQUIRED_FIELDS_CONDITIONAL.Business.businessType.replace(' is required', '')} <span className="text-om-error">*</span></>}
                 value={formData.businessType}
                 onChange={(e) => handleInputChange('businessType', e.target.value)}
                 error={!!errors.businessType}
@@ -154,7 +154,7 @@ export const StepEmployment: React.FC<StepProps> = ({
           <div className="mb-4">
             <FloatingTextarea
               id="businessAddress"
-              label={REQUIRED_FIELDS_CONDITIONAL.Business.businessAddress.replace(' is required', '') + ' *'}
+              label={<>{REQUIRED_FIELDS_CONDITIONAL.Business.businessAddress.replace(' is required', '')} <span className="text-om-error">*</span></>}
               value={formData.businessAddress}
               onChange={(e) => handleInputChange('businessAddress', e.target.value)}
               rows={3}
@@ -171,7 +171,7 @@ export const StepEmployment: React.FC<StepProps> = ({
           <div className="mb-8">
             <FloatingInput
               id="businessMonthlyIncome"
-              label={REQUIRED_FIELDS_CONDITIONAL.Business.businessMonthlyIncome.replace(' is required', '') + ' *'}
+                label={<>{REQUIRED_FIELDS_CONDITIONAL.Business.businessMonthlyIncome.replace(' is required', '')} <span className="text-om-error">*</span></>}
               type="number"
               value={formData.businessMonthlyIncome}
               onChange={(e) => handleInputChange('businessMonthlyIncome', e.target.value)}

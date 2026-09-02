@@ -471,6 +471,48 @@ const KycGroup: React.FC = () => {
     setLoading(false);
   };
 
+  const isStepValid = (step: number): boolean => {
+    if (step === 0) {
+      return (
+        !!formData.groupName.trim() &&
+        formData.products.length > 0 &&
+        formData.schemeNumbers.filter((s) => s.trim()).length > 0
+      );
+    }
+    if (step === 1) {
+      return (
+        !!formData.foundingDocument &&
+        !!formData.documents.founding &&
+        !!formData.sourceOfFunds &&
+        !!formData.documents.sourceOfFunds &&
+        !!formData.bankAccountProof &&
+        !!formData.documents.bankAccount
+      );
+    }
+    if (step === 2) {
+      if (formData.signatories.length === 0) return false;
+      return formData.signatories.every((sig) => {
+        const basicValid =
+          !!sig.fullName.trim() &&
+          !!sig.address.trim() &&
+          !!sig.phone.trim() &&
+          !!sig.email.trim() &&
+          !!sig.occupation.trim() &&
+          !!sig.idType &&
+          !!sig.addressProof;
+        if (!basicValid) return false;
+        if (sig.idType === 'National ID') {
+          return !!sig.idDocumentFront && !!sig.idDocumentBack && !!sig.addressProofFile;
+        }
+        return !!sig.idDocument && !!sig.addressProofFile;
+      });
+    }
+    if (step === 3) {
+      return formData.declaration === true;
+    }
+    return true;
+  };
+
   const handleNext = () => {
     setActiveStep((prev) => prev + 1);
   };
@@ -531,6 +573,7 @@ const KycGroup: React.FC = () => {
         onSubmit={handleSubmit}
         isLastStep={activeStep === STEPS.length - 1}
         isSubmitting={loading}
+        nextDisabled={!isStepValid(activeStep)}
         validationError={validationError}
         validationErrorStep={validationErrorStep}
         validationErrorStepLabel={validationErrorStep !== undefined ? STEPS[validationErrorStep].label : undefined}
