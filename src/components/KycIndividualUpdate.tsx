@@ -28,7 +28,7 @@ import {
   Update
 } from '@mui/icons-material';
 import FloatingProgressIndicator from './FloatingProgressIndicator';
-import { defaultToastrOptions, sanitizeErrorMessage } from '../lib/security';
+import { defaultToastrOptions } from '../lib/security';
 
 // Import toastr
 declare const toastr: any;

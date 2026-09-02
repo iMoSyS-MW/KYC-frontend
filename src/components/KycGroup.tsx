@@ -9,7 +9,7 @@ import { StepSignatories } from './kyc-group/StepSignatories';
 import { StepDeclaration } from './kyc-group/StepDeclaration';
 import { GroupFormData, FileSelections, FileInputRefs, STEPS, REQUIRED_FIELDS, SIGNATORY_REQUIRED_FIELDS } from './kyc-group/types';
 import SuccessModal from './ui/SuccessModal';
-import { defaultToastrOptions, sanitizeErrorMessage } from '../lib/security';
+import { defaultToastrOptions } from '../lib/security';
 
 declare const toastr: any;
 
