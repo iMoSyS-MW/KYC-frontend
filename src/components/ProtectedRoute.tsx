@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import axios from '../api/client';
 import { isTokenExpired } from '../lib/security';
 
 interface ProtectedRouteProps {
@@ -28,16 +27,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         return;
       }
 
-      // Token looks valid client-side; optionally verify with backend
-      try {
-        await axios.get('/api/auth/verify');
-        setIsAuthenticated(true);
-      } catch {
-        // Backend rejected the token
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
-        setIsAuthenticated(false);
-      }
+      // Token is present and not expired client-side; consider authenticated.
+      // Subsequent API calls will hit 401 if the token is truly invalid,
+      // and the axios interceptor in client.ts handles redirecting to login.
+      setIsAuthenticated(true);
     };
 
     verifyAuth();

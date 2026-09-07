@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FloatingInput } from '../../ui/floating-input';
 import { FloatingSelect } from '../../ui/floating-select';
 import { SelectItem } from '../../ui/select';
 import Pagination from '../ui/Pagination';
+import { ChevronDown, Filter } from 'lucide-react';
 import {
   reportHeadingStyle,
   reportCardHeadingStyle,
@@ -65,6 +66,8 @@ const UserActivityTab: React.FC<UserActivityTabProps> = ({
   loadUserActivity,
   hasCurrentRole,
 }) => {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   return (
     <div>
       <h3 style={reportHeadingStyle}>User Activity</h3>
@@ -87,70 +90,99 @@ const UserActivityTab: React.FC<UserActivityTabProps> = ({
         padding: '24px',
         display: hasCurrentRole('admin') ? 'block' : 'none'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
-          <h4 style={{ ...reportCardHeadingStyle, marginBottom: 0 }}>Recent User Actions</h4>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-            <div style={{ minWidth: '240px' }}>
-              <FloatingInput
-                label="Search Activity"
-                value={userActivitySearch}
-                onChange={(e) => setUserActivitySearch(e.target.value)}
-              />
-            </div>
-            <div style={{ minWidth: '160px' }}>
-              <FloatingSelect
-                label="Action"
-                value={userActivityActionFilter}
-                onValueChange={setUserActivityActionFilter}
+        <button
+          onClick={() => setFiltersOpen((prev) => !prev)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            marginBottom: filtersOpen ? '16px' : 0,
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '16px', color: colors.textPrimary }}>
+            <Filter className="w-4 h-4" />
+            Filters
+          </span>
+          <ChevronDown
+            className="w-5 h-5 text-gray-500"
+            style={{
+              transform: filtersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease',
+            }}
+          />
+        </button>
+
+        {filtersOpen && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
+            <h4 style={{ ...reportCardHeadingStyle, marginBottom: 0 }}>Recent User Actions</h4>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+              <div style={{ minWidth: '240px' }}>
+                <FloatingInput
+                  label="Search Activity"
+                  value={userActivitySearch}
+                  onChange={(e) => setUserActivitySearch(e.target.value)}
+                />
+              </div>
+              <div style={{ minWidth: '160px' }}>
+                <FloatingSelect
+                  label="Action"
+                  value={userActivityActionFilter}
+                  onValueChange={setUserActivityActionFilter}
+                >
+                  <SelectItem value="all">All actions</SelectItem>
+                  {availableUserActions.map((action) => (
+                    <SelectItem key={action} value={action}>{action}</SelectItem>
+                  ))}
+                </FloatingSelect>
+              </div>
+              <div style={{ minWidth: '140px' }}>
+                <FloatingSelect
+                  label="Per Page"
+                  value={String(userActivityItemsPerPage)}
+                  onValueChange={(v) => handleUserActivityItemsPerPageChange(Number(v))}
+                >
+                  {[5, 10, 20, 50].map((size) => (
+                    <SelectItem key={size} value={String(size)}>{size} / page</SelectItem>
+                  ))}
+                </FloatingSelect>
+              </div>
+              <button
+                onClick={exportUserActivityToExcel}
+                style={{ padding: '9px 18px', backgroundColor: colors.green, color: 'white', border: 'none', borderRadius: '999px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
               >
-                <SelectItem value="all">All actions</SelectItem>
-                {availableUserActions.map((action) => (
-                  <SelectItem key={action} value={action}>{action}</SelectItem>
-                ))}
-              </FloatingSelect>
-            </div>
-            <div style={{ minWidth: '140px' }}>
-              <FloatingSelect
-                label="Per Page"
-                value={String(userActivityItemsPerPage)}
-                onValueChange={(v) => handleUserActivityItemsPerPageChange(Number(v))}
+                Export Excel
+              </button>
+              <button
+                onClick={exportUserActivityToPdf}
+                style={{ padding: '9px 18px', backgroundColor: 'transparent', color: colors.green, border: `1px solid ${colors.green}`, borderRadius: '999px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
               >
-                {[5, 10, 20, 50].map((size) => (
-                  <SelectItem key={size} value={String(size)}>{size} / page</SelectItem>
-                ))}
-              </FloatingSelect>
+                Export PDF
+              </button>
+              <button
+                onClick={loadUserActivity}
+                disabled={userActivityLoading}
+                style={{
+                  padding: '9px 18px',
+                  backgroundColor: 'transparent',
+                  color: colors.green,
+                  border: `1px solid ${colors.green}`,
+                  borderRadius: '999px',
+                  cursor: userActivityLoading ? 'not-allowed' : 'pointer',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  opacity: userActivityLoading ? 0.7 : 1
+                }}
+              >
+                {userActivityLoading ? 'Refreshing...' : 'Refresh'}
+              </button>
             </div>
-            <button
-              onClick={exportUserActivityToExcel}
-              style={{ padding: '9px 18px', backgroundColor: colors.green, color: 'white', border: 'none', borderRadius: '999px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
-            >
-              Export Excel
-            </button>
-            <button
-              onClick={exportUserActivityToPdf}
-              style={{ padding: '9px 18px', backgroundColor: 'transparent', color: colors.green, border: `1px solid ${colors.green}`, borderRadius: '999px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
-            >
-              Export PDF
-            </button>
-            <button
-              onClick={loadUserActivity}
-              disabled={userActivityLoading}
-              style={{
-                padding: '9px 18px',
-                backgroundColor: 'transparent',
-                color: colors.green,
-                border: `1px solid ${colors.green}`,
-                borderRadius: '999px',
-                cursor: userActivityLoading ? 'not-allowed' : 'pointer',
-                fontWeight: 600,
-                fontSize: '13px',
-                opacity: userActivityLoading ? 0.7 : 1
-              }}
-            >
-              {userActivityLoading ? 'Refreshing...' : 'Refresh'}
-            </button>
           </div>
-        </div>
+        )}
 
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>

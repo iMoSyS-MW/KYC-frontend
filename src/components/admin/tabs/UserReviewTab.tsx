@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FloatingInput } from '../../ui/floating-input';
 import { FloatingSelect } from '../../ui/floating-select';
 import { SelectItem } from '../../ui/select';
 import StatCard from '../ui/StatCard';
 import Pagination from '../ui/Pagination';
+import { ChevronDown, Filter } from 'lucide-react';
 import {
   reportHeadingStyle,
   reportCardHeadingStyle,
@@ -70,6 +71,8 @@ const UserReviewTab: React.FC<UserReviewTabProps> = ({
   exportUserReviewToPdf,
   hasCurrentRole,
 }) => {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   return (
     <div>
       <h3 style={reportHeadingStyle}>User Review</h3>
@@ -107,64 +110,93 @@ const UserReviewTab: React.FC<UserReviewTabProps> = ({
         marginBottom: '20px',
         display: hasCurrentRole('admin') ? 'block' : 'none'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
-          <h4 style={{ ...reportCardHeadingStyle, marginBottom: 0 }}>User Audit Summary</h4>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-            <div style={{ minWidth: '260px' }}>
-              <FloatingInput
-                label="Search Users"
-                value={userSearchTerm}
-                onChange={(e) => setUserSearchTerm(e.target.value)}
-              />
-            </div>
-            <div style={{ minWidth: '150px' }}>
-              <FloatingSelect
-                label="Role"
-                value={userReviewRoleFilter}
-                onValueChange={setUserReviewRoleFilter}
+        <button
+          onClick={() => setFiltersOpen((prev) => !prev)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            marginBottom: filtersOpen ? '16px' : 0,
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '16px', color: colors.textPrimary }}>
+            <Filter className="w-4 h-4" />
+            Filters
+          </span>
+          <ChevronDown
+            className="w-5 h-5 text-gray-500"
+            style={{
+              transform: filtersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease',
+            }}
+          />
+        </button>
+
+        {filtersOpen && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
+            <h4 style={{ ...reportCardHeadingStyle, marginBottom: 0 }}>User Audit Summary</h4>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+              <div style={{ minWidth: '260px' }}>
+                <FloatingInput
+                  label="Search Users"
+                  value={userSearchTerm}
+                  onChange={(e) => setUserSearchTerm(e.target.value)}
+                />
+              </div>
+              <div style={{ minWidth: '150px' }}>
+                <FloatingSelect
+                  label="Role"
+                  value={userReviewRoleFilter}
+                  onValueChange={setUserReviewRoleFilter}
+                >
+                  <SelectItem value="all">All roles</SelectItem>
+                  {availableUserRoles.map((role) => (
+                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                  ))}
+                </FloatingSelect>
+              </div>
+              <div style={{ minWidth: '150px' }}>
+                <FloatingSelect
+                  label="Status"
+                  value={userReviewStatusFilter}
+                  onValueChange={setUserReviewStatusFilter}
+                >
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </FloatingSelect>
+              </div>
+              <div style={{ minWidth: '140px' }}>
+                <FloatingSelect
+                  label="Per Page"
+                  value={String(userReviewItemsPerPage)}
+                  onValueChange={(v) => handleUserReviewItemsPerPageChange(Number(v))}
+                >
+                  {[5, 10, 20, 50].map((size) => (
+                    <SelectItem key={size} value={String(size)}>{size} / page</SelectItem>
+                  ))}
+                </FloatingSelect>
+              </div>
+              <button
+                onClick={exportUserReviewToExcel}
+                style={{ padding: '9px 18px', backgroundColor: colors.green, color: 'white', border: 'none', borderRadius: '999px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
               >
-                <SelectItem value="all">All roles</SelectItem>
-                {availableUserRoles.map((role) => (
-                  <SelectItem key={role} value={role}>{role}</SelectItem>
-                ))}
-              </FloatingSelect>
-            </div>
-            <div style={{ minWidth: '150px' }}>
-              <FloatingSelect
-                label="Status"
-                value={userReviewStatusFilter}
-                onValueChange={setUserReviewStatusFilter}
+                Export Excel
+              </button>
+              <button
+                onClick={exportUserReviewToPdf}
+                style={{ padding: '9px 18px', backgroundColor: 'transparent', color: colors.green, border: `1px solid ${colors.green}`, borderRadius: '999px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
               >
-                <SelectItem value="all">All statuses</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-              </FloatingSelect>
+                Export PDF
+              </button>
             </div>
-            <div style={{ minWidth: '140px' }}>
-              <FloatingSelect
-                label="Per Page"
-                value={String(userReviewItemsPerPage)}
-                onValueChange={(v) => handleUserReviewItemsPerPageChange(Number(v))}
-              >
-                {[5, 10, 20, 50].map((size) => (
-                  <SelectItem key={size} value={String(size)}>{size} / page</SelectItem>
-                ))}
-              </FloatingSelect>
-            </div>
-            <button
-              onClick={exportUserReviewToExcel}
-              style={{ padding: '9px 18px', backgroundColor: colors.green, color: 'white', border: 'none', borderRadius: '999px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
-            >
-              Export Excel
-            </button>
-            <button
-              onClick={exportUserReviewToPdf}
-              style={{ padding: '9px 18px', backgroundColor: 'transparent', color: colors.green, border: `1px solid ${colors.green}`, borderRadius: '999px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
-            >
-              Export PDF
-            </button>
           </div>
-        </div>
+        )}
 
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>

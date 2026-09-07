@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { KycSubmission } from '../../../types/admin';
 import SubmissionFilters from '../SubmissionFilters';
 import SubmissionDetailPanel from '../SubmissionDetailPanel';
 import StatusBadge from '../ui/StatusBadge';
 import Pagination from '../ui/Pagination';
+import { ChevronDown, Filter } from 'lucide-react';
+import { colors } from '../theme';
 
 interface SubmissionsTabProps {
   submissions: KycSubmission[];
@@ -93,6 +95,22 @@ const SubmissionsTab: React.FC<SubmissionsTabProps> = (props) => {
     downloadFile,
   } = props;
 
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Exclude approved from the review tab only (reports show all)
+  const reviewFiltered = filteredSubmissions.filter(s => s.status !== 'approved');
+  const reviewTotalPages = Math.max(1, Math.ceil(reviewFiltered.length / itemsPerPage));
+  const reviewStartIndex = (currentPage - 1) * itemsPerPage;
+  const reviewEndIndex = reviewStartIndex + itemsPerPage;
+  const reviewCurrent = reviewFiltered.slice(reviewStartIndex, reviewEndIndex);
+
+  // Clamp page if approved removals caused the current page to go out of bounds
+  React.useEffect(() => {
+    if (currentPage > reviewTotalPages) {
+      handlePageChange(reviewTotalPages);
+    }
+  }, [currentPage, reviewTotalPages, handlePageChange]);
+
   return (
     <div>
       <h3 style={{ margin: '0 0 20px', fontSize: '20px', color: '#1a1a1a' }}>KYC Submissions</h3>
@@ -105,25 +123,54 @@ const SubmissionsTab: React.FC<SubmissionsTabProps> = (props) => {
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
         marginBottom: '20px'
       }}>
-        <SubmissionFilters
-          searchTerm={searchTerm}
-          onSearchTermChange={setSearchTerm}
-          typeFilter={typeFilter}
-          onTypeFilterChange={setTypeFilter}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          lifecycleFilter={lifecycleFilter}
-          onLifecycleFilterChange={setLifecycleFilter}
-          dateFrom={dateFrom}
-          onDateFromChange={setDateFrom}
-          dateTo={dateTo}
-          onDateToChange={setDateTo}
-          onClearFilters={clearSubmissionFilters}
-          onExport={exportToExcel}
-          exportDisabled={filteredSubmissions.length === 0}
-        />
+        <button
+          onClick={() => setFiltersOpen((prev) => !prev)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            marginBottom: filtersOpen ? '16px' : 0,
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '16px', color: colors.textPrimary }}>
+            <Filter className="w-4 h-4" />
+            Filters
+          </span>
+          <ChevronDown
+            className="w-5 h-5 text-gray-500"
+            style={{
+              transform: filtersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease',
+            }}
+          />
+        </button>
 
-        {/* Results Summary and Items Per Page */}
+        {filtersOpen && (
+          <SubmissionFilters
+            searchTerm={searchTerm}
+            onSearchTermChange={setSearchTerm}
+            typeFilter={typeFilter}
+            onTypeFilterChange={setTypeFilter}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            lifecycleFilter={lifecycleFilter}
+            onLifecycleFilterChange={setLifecycleFilter}
+            dateFrom={dateFrom}
+            onDateFromChange={setDateFrom}
+            dateTo={dateTo}
+            onDateToChange={setDateTo}
+            onClearFilters={clearSubmissionFilters}
+            onExport={exportToExcel}
+            exportDisabled={reviewFiltered.length === 0}
+          />
+        )}
+
+        {/* Results Summary and Items Per Page
         <div style={{
           marginTop: '15px',
           display: 'flex',
@@ -150,10 +197,10 @@ const SubmissionsTab: React.FC<SubmissionsTabProps> = (props) => {
               <option value={50}>50</option>
             </select>
           </div>
-        </div>
+        </div> */}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '20px', alignItems: 'start' }}>
         {/* Submissions List */}
         <div style={{
           backgroundColor: 'white',
@@ -163,7 +210,7 @@ const SubmissionsTab: React.FC<SubmissionsTabProps> = (props) => {
           maxHeight: '600px',
           overflowY: 'auto'
         }}>
-          {currentSubmissions.map(submission => (
+          {reviewCurrent.map(submission => (
             <div
               key={submission._id}
               onClick={() => setSelectedSubmission(submission)}
@@ -206,14 +253,14 @@ const SubmissionsTab: React.FC<SubmissionsTabProps> = (props) => {
           ))}
 
           {/* Pagination Controls */}
-          {filteredSubmissions.length > 0 && (
+          {reviewFiltered.length > 0 && (
             <Pagination
               currentPage={currentPage}
-              totalPages={totalPages}
+              totalPages={reviewTotalPages}
               onPageChange={handlePageChange}
-              rangeStart={startIndex + 1}
-              rangeEnd={Math.min(endIndex, filteredSubmissions.length)}
-              total={filteredSubmissions.length}
+              rangeStart={reviewStartIndex + 1}
+              rangeEnd={Math.min(reviewEndIndex, reviewFiltered.length)}
+              total={reviewFiltered.length}
               unit="submissions"
             />
           )}

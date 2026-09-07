@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { KycSubmission } from '../../../types/admin';
 import { FloatingSelect } from '../../ui/floating-select';
 import { SelectItem } from '../../ui/select';
 import StatCard from '../ui/StatCard';
+import { ChevronDown, Filter } from 'lucide-react';
 import {
   reportHeadingStyle,
   reportCardHeadingStyle,
@@ -50,6 +51,8 @@ const FollowupsTab: React.FC<FollowupsTabProps> = ({
   getFollowUpInfo,
   exportToExcel,
 }) => {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   return (
     <div>
       <h3 style={reportHeadingStyle}>Follow-ups Report</h3>
@@ -72,83 +75,112 @@ const FollowupsTab: React.FC<FollowupsTabProps> = ({
 
       {/* Filter Controls */}
       <div style={{ ...card, padding: '24px', marginBottom: '20px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '16px',
-          alignItems: 'end'
-        }}>
-          <div>
-            <FloatingSelect
-              label="Follow-up Type"
-              value={lifecycleFilter}
-              onValueChange={setLifecycleFilter}
-            >
-              <SelectItem value="all">All Follow-ups</SelectItem>
-              <SelectItem value="needs_info">Needs Info</SelectItem>
-              <SelectItem value="expired">Expired</SelectItem>
-              <SelectItem value="due_soon">Due Soon</SelectItem>
-              <SelectItem value="pending_update">Pending Update</SelectItem>
-              <SelectItem value="pending_review">Pending Review</SelectItem>
-            </FloatingSelect>
-          </div>
+        <button
+          onClick={() => setFiltersOpen((prev) => !prev)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            marginBottom: filtersOpen ? '16px' : 0,
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '16px', color: colors.textPrimary }}>
+            <Filter className="w-4 h-4" />
+            Filters
+          </span>
+          <ChevronDown
+            className="w-5 h-5 text-gray-500"
+            style={{
+              transform: filtersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease',
+            }}
+          />
+        </button>
 
-          <div>
-            <FloatingSelect
-              label="KYC Type"
-              value={typeFilter}
-              onValueChange={setTypeFilter}
-            >
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="individual">Individual</SelectItem>
-              <SelectItem value="group">Group</SelectItem>
-              <SelectItem value="corporate">Corporate</SelectItem>
-            </FloatingSelect>
-          </div>
+        {filtersOpen && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '16px',
+            alignItems: 'end'
+          }}>
+            <div>
+              <FloatingSelect
+                label="Follow-up Type"
+                value={lifecycleFilter}
+                onValueChange={setLifecycleFilter}
+              >
+                <SelectItem value="all">All Follow-ups</SelectItem>
+                <SelectItem value="needs_info">Needs Info</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+                <SelectItem value="due_soon">Due Soon</SelectItem>
+                <SelectItem value="pending_update">Pending Update</SelectItem>
+                <SelectItem value="pending_review">Pending Review</SelectItem>
+              </FloatingSelect>
+            </div>
 
-          <div>
-            <button
-              onClick={() => {
-                setLifecycleFilter('all');
-                setTypeFilter('all');
-                setSearchTerm('');
-              }}
-              style={{
-                width: '100%',
-                padding: '10px',
-                backgroundColor: 'transparent',
-                color: colors.green,
-                border: `1px solid ${colors.green}`,
-                borderRadius: '999px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 600
-              }}
-            >
-              Clear Filters
-            </button>
-          </div>
+            <div>
+              <FloatingSelect
+                label="KYC Type"
+                value={typeFilter}
+                onValueChange={setTypeFilter}
+              >
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="individual">Individual</SelectItem>
+                <SelectItem value="group">Group</SelectItem>
+                <SelectItem value="corporate">Corporate</SelectItem>
+              </FloatingSelect>
+            </div>
 
-          <div>
-            <button
-              onClick={exportToExcel}
-              disabled={filteredFollowups.length === 0}
-              style={{
-                width: '100%',
-                padding: '10px',
-                backgroundColor: filteredFollowups.length > 0 ? colors.green : '#c9c9c9',
-                color: 'white',
-                border: 'none',
-                borderRadius: '999px',
-                cursor: filteredFollowups.length > 0 ? 'pointer' : 'not-allowed',
-                fontSize: '14px',
-                fontWeight: 600
-              }}
-            >
-              Export to Excel
-            </button>
+            <div>
+              <button
+                onClick={() => {
+                  setLifecycleFilter('all');
+                  setTypeFilter('all');
+                  setSearchTerm('');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  backgroundColor: 'transparent',
+                  color: colors.green,
+                  border: `1px solid ${colors.green}`,
+                  borderRadius: '999px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 600
+                }}
+              >
+                Clear Filters
+              </button>
+            </div>
+
+            <div>
+              <button
+                onClick={exportToExcel}
+                disabled={filteredFollowups.length === 0}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  backgroundColor: filteredFollowups.length > 0 ? colors.green : '#c9c9c9',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '999px',
+                  cursor: filteredFollowups.length > 0 ? 'pointer' : 'not-allowed',
+                  fontSize: '14px',
+                  fontWeight: 600
+                }}
+              >
+                Export to Excel
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Follow-ups Table */}

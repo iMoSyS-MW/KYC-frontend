@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { KycSubmission } from '../../../types/admin';
 import SubmissionFilters from '../SubmissionFilters';
 import StatusBadge from '../ui/StatusBadge';
 import Pagination from '../ui/Pagination';
 import { card, colors, reportHeadingStyle, reportThStyle, reportTdStyle } from '../theme';
+import { ChevronDown, Filter } from 'lucide-react';
 
 interface ReportsSubmissionsTabProps {
   submissions: KycSubmission[];
@@ -60,31 +61,62 @@ const ReportsSubmissionsTab: React.FC<ReportsSubmissionsTabProps> = ({
   exportToExcel,
   setSelectedSubmission,
 }) => {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   return (
     <div>
       <h3 style={reportHeadingStyle}>Submissions Report</h3>
 
       {/* Filter Controls */}
       <div style={{ ...card, padding: '24px', marginBottom: '20px' }}>
-        <SubmissionFilters
-          searchTerm={searchTerm}
-          onSearchTermChange={setSearchTerm}
-          typeFilter={typeFilter}
-          onTypeFilterChange={setTypeFilter}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          lifecycleFilter={lifecycleFilter}
-          onLifecycleFilterChange={setLifecycleFilter}
-          dateFrom={dateFrom}
-          onDateFromChange={setDateFrom}
-          dateTo={dateTo}
-          onDateToChange={setDateTo}
-          onClearFilters={clearSubmissionFilters}
-          onExport={exportToExcel}
-          exportDisabled={filteredSubmissions.length === 0}
-        />
+        <button
+          onClick={() => setFiltersOpen((prev) => !prev)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            marginBottom: filtersOpen ? '16px' : 0,
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, fontSize: '16px', color: colors.textPrimary }}>
+            <Filter className="w-4 h-4" />
+            Filters
+          </span>
+          <ChevronDown
+            className="w-5 h-5 text-gray-500"
+            style={{
+              transform: filtersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease',
+            }}
+          />
+        </button>
 
-        {/* Results Summary */}
+        {filtersOpen && (
+          <SubmissionFilters
+            searchTerm={searchTerm}
+            onSearchTermChange={setSearchTerm}
+            typeFilter={typeFilter}
+            onTypeFilterChange={setTypeFilter}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            lifecycleFilter={lifecycleFilter}
+            onLifecycleFilterChange={setLifecycleFilter}
+            dateFrom={dateFrom}
+            onDateFromChange={setDateFrom}
+            dateTo={dateTo}
+            onDateToChange={setDateTo}
+            onClearFilters={clearSubmissionFilters}
+            onExport={exportToExcel}
+            exportDisabled={filteredSubmissions.length === 0}
+          />
+        )}
+
+        {/* Results Summary 
         <div style={{
           marginTop: '20px',
           display: 'flex',
@@ -96,9 +128,9 @@ const ReportsSubmissionsTab: React.FC<ReportsSubmissionsTabProps> = ({
           fontSize: '14px',
           color: colors.textPrimary
         }}>
-          <div>
+          {/* <div>
             Showing {filteredSubmissions.length === 0 ? 0 : startIndex + 1}-{Math.min(endIndex, filteredSubmissions.length)} of {filteredSubmissions.length} submissions
-          </div>
+          </div> 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <label style={{ fontSize: '14px' }}>Items per page:</label>
             <select
@@ -116,8 +148,8 @@ const ReportsSubmissionsTab: React.FC<ReportsSubmissionsTabProps> = ({
               <option value={20}>20</option>
               <option value={50}>50</option>
             </select>
-          </div>
-        </div>
+          </div> 
+        </div>*/}
       </div>
 
       {/* Submissions Table */}

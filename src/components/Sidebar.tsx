@@ -50,11 +50,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onLogout, onO
         { key: 'reports-submissions', label: 'Submissions Report' },
         { key: 'reports-followups', label: 'Follow-ups Report' },
         { key: 'reports-turnaround', label: 'Turnaround Time' },
-        { key: 'reports-sms', label: 'SMS Queue Report' },
-        { key: 'reports-sla-breach', label: 'SLA Breach' },
-        { key: 'reports-upcoming-sla', label: 'Upcoming SLA' },
+        // { key: 'reports-sms', label: 'SMS Queue Report' },
+        // { key: 'reports-sla-breach', label: 'SLA Breach' },
+        // { key: 'reports-upcoming-sla', label: 'Upcoming SLA' },
         { key: 'reports-renewal', label: 'KYC Renewal / Expiry' },
-        { key: 'reports-settings-impact', label: 'Settings Impact' },
+        // { key: 'reports-settings-impact', label: 'Settings Impact' },
       ]
     },
     {
@@ -62,11 +62,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, onLogout, onO
       label: 'File Management',
       icon: Folder,
     },
-    {
-      key: 'followups',
-      label: 'Follow Ups',
-      icon: RefreshCw,
-    },
+    // {
+    //   key: 'followups',
+    //   label: 'Follow Ups',
+    //   icon: RefreshCw,
+    // },
     {
       key: 'users',
       label: 'User Management',
