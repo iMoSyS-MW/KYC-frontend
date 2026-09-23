@@ -1,0 +1,25 @@
+{
+  "short_name": "Old Mutual KYC",
+  "name": "Old Mutual KYC Portal",
+  "icons": [
+    {
+      "src": "OMU.JO-4aa2b32b.png",
+      "type": "image/png",
+      "sizes": "32x32"
+    },
+    {
+      "src": "OMU.JO-4aa2b32b.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "OMU.JO-4aa2b32b.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#006437",
+  "background_color": "#ffffff"
+}

@@ -1,0 +1,111 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import {
+  SelectRoot,
+  SelectTrigger,
+  SelectValue,
+  SelectIcon,
+  SelectContent,
+  SelectViewport,
+} from 'reka-ui'
+import { ChevronDown } from '@lucide/vue'
+import { cn } from '@/lib/utils'
+import type { FloatingSelectProps } from './types'
+
+const props = withDefaults(defineProps<FloatingSelectProps>(), {
+  error: false,
+})
+
+const model = defineModel<string>()
+
+const open = ref(false)
+const focused = ref(false)
+
+const hasValue = computed(
+  () => model.value !== undefined && model.value !== null && model.value !== '',
+)
+const floated = computed(() => hasValue.value || focused.value || open.value)
+
+const labelColorClass = computed(() => {
+  if (props.error) return 'text-om-error'
+  if (focused.value || open.value) return 'text-om-green'
+  if (hasValue.value) return 'text-gray-700'
+  return 'text-gray-500'
+})
+
+const triggerClass = computed(() =>
+  cn(
+    'group flex h-12 w-full items-center justify-between rounded-lg border bg-white text-sm text-gray-900 outline-none transition-colors',
+    'focus:ring-2 focus:ring-offset-0',
+    props.error
+      ? 'border-om-error focus:border-om-error focus:ring-om-error/30'
+      : 'border-gray-300 focus:border-om-green focus:ring-om-green/30',
+    props.class,
+  ),
+)
+
+const rootModelValue = computed(() => (hasValue.value ? model.value : undefined))
+
+function onValueChange(value: string) {
+  model.value = value
+}
+
+function onOpenChange(value: boolean) {
+  open.value = value
+}
+</script>
+
+<template>
+  <div class="relative">
+    <SelectRoot
+      :model-value="rootModelValue"
+      :open="open"
+      @update:model-value="onValueChange"
+      @update:open="onOpenChange"
+    >
+      <SelectTrigger :class="triggerClass" @focus="focused = true" @blur="focused = false">
+        <span class="flex-1 truncate pl-3 text-left">
+          <SelectValue placeholder=" " />
+        </span>
+        <div class="flex items-center gap-1.5 pr-3">
+          <svg
+            v-if="error"
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M10 15C10.2833 15 10.5208 14.9042 10.7125 14.7125C10.9042 14.5208 11 14.2833 11 14C11 13.7167 10.9042 13.4792 10.7125 13.2875C10.5208 13.0958 10.2833 13 10 13C9.71667 13 9.47917 13.0958 9.2875 13.2875C9.09583 13.4792 9 13.7167 9 14C9 14.2833 9.09583 14.5208 9.2875 14.7125C9.47917 14.9042 9.71667 15 10 15ZM9 11H11V5H9V11ZM10 20C8.61667 20 7.31667 19.7375 6.1 19.2125C4.88333 18.6875 3.825 17.975 2.925 17.075C2.025 16.175 1.3125 15.1167 0.7875 13.9C0.2625 12.6833 0 11.3833 0 10C0 8.61667 0.2625 7.31667 0.7875 6.1C1.3125 4.88333 2.025 3.825 2.925 2.925C3.825 2.025 4.88333 1.3125 6.1 0.7875C7.31667 0.2625 8.61667 0 10 0C11.3833 0 12.6833 0.2625 13.9 0.7875C15.1167 1.3125 16.175 2.025 17.075 2.925C17.975 3.825 18.6875 4.88333 19.2125 6.1C19.7375 7.31667 20 8.61667 20 10C20 11.3833 19.7375 12.6833 19.2125 13.9C18.6875 15.1167 17.975 16.175 17.075 17.075C16.175 17.975 15.1167 18.6875 13.9 19.2125C12.6833 19.7375 11.3833 20 10 20Z" fill="#910822"/>
+          </svg>
+          <SelectIcon as-child>
+            <ChevronDown
+              class="h-4 w-4 shrink-0 opacity-50 transition-transform duration-200 group-data-[state=open]:rotate-180"
+            />
+          </SelectIcon>
+        </div>
+      </SelectTrigger>
+      <SelectContent
+        class="relative z-50 max-h-96 w-[var(--reka-select-trigger-width)] min-w-[var(--reka-select-trigger-width)] overflow-hidden rounded-lg border border-gray-200 bg-white text-gray-700 shadow-lg"
+        position="popper"
+        :side-offset="4"
+      >
+        <SelectViewport class="p-1">
+          <slot />
+        </SelectViewport>
+      </SelectContent>
+    </SelectRoot>
+
+    <label
+      :class="
+        cn(
+          'pointer-events-none absolute left-3 bg-white px-1 text-sm transition-all duration-200',
+          floated ? 'top-0 -translate-y-1/2 text-xs' : 'top-1/2 -translate-y-1/2',
+          labelColorClass,
+        )
+      "
+    >
+      <slot name="label">{{ label }}</slot>
+    </label>
+  </div>
+</template>
