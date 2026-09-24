@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import client from '@/api/client'
+import { submitKyc } from '@/api/kyc'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { sanitizeErrorMessage, sanitizeSubmitPayload, validateDocumentFile } from '@/lib/security'
 import FormPageLayout from '@/layouts/FormPageLayout.vue'
 import SuccessModal from '@/components/ui/SuccessModal.vue'
 import StepClientDetails from '@/components/kyc-group/StepClientDetails.vue'
@@ -15,6 +16,8 @@ import {
   REQUIRED_FIELDS,
   SIGNATORY_REQUIRED_FIELDS,
   createEmptySignatory,
+  MAX_SCHEME_NUMBERS,
+  MAX_SIGNATORIES,
 } from '@/components/kyc-group/interfaces'
 import type { GroupFormData, FileSelections, Signatory } from '@/components/kyc-group/interfaces'
 
@@ -83,8 +86,42 @@ function handleProductChange(product: string, checked: boolean) {
     : formData.products.filter((p) => p !== product)
 }
 
+function groupFileErrorKey(field: string): string | null {
+  const documentErrorMap: Record<string, string> = {
+    'documents.founding': 'foundingFile',
+    'documents.sourceOfFunds': 'sourceOfFundsFile',
+    'documents.bankAccount': 'bankAccountFile',
+  }
+  if (field.includes('.')) return documentErrorMap[field] ?? null
+
+  if (field.startsWith('signatory_')) {
+    const parts = field.split('_')
+    const index = parts[1]
+    const fileType = parts[2]
+    const signatoryErrorMap: Record<string, string> = {
+      id: `signatory_${index}_idDocument`,
+      idFront: `signatory_${index}_idDocumentFront`,
+      idBack: `signatory_${index}_idDocumentBack`,
+      address: `signatory_${index}_addressProofFile`,
+    }
+    return signatoryErrorMap[fileType] ?? null
+  }
+  return null
+}
+
 function handleFileChange(field: string, files: FileList | null) {
   const file = files?.[0] || null
+
+  if (file && !validateDocumentFile(file).valid) {
+    const errorKey = groupFileErrorKey(field)
+    if (errorKey) {
+      errors.value = {
+        ...errors.value,
+        [errorKey]: 'Only PDF, PNG or JPG files (max 10 MB) are allowed',
+      }
+    }
+    return
+  }
 
   if (field.includes('.')) {
     const [parent, child] = field.split('.')
@@ -137,6 +174,7 @@ function handleFileChange(field: string, files: FileList | null) {
 }
 
 function addSignatory() {
+  if (formData.signatories.length >= MAX_SIGNATORIES) return
   formData.signatories = [...formData.signatories, createEmptySignatory()]
 }
 
@@ -205,6 +243,7 @@ function removeSignatory(index: number) {
 }
 
 function addSchemeNumber() {
+  if (formData.schemeNumbers.length >= MAX_SCHEME_NUMBERS) return
   formData.schemeNumbers = [...formData.schemeNumbers, '']
 }
 
@@ -346,23 +385,28 @@ async function handleSubmit() {
     submitData.append('clientName', formData.groupName)
     submitData.append(
       'formData',
-      JSON.stringify({
-        products: formData.products,
-        schemeNumbers: formData.schemeNumbers.filter((scheme) => scheme.trim() !== ''),
-        foundingDocument: formData.foundingDocument,
-        sourceOfFunds: formData.sourceOfFunds,
-        bankAccountProof: formData.bankAccountProof,
-        signatories: formData.signatories.map((sig) => ({
-          fullName: sig.fullName,
-          address: sig.address,
-          phone: sig.phone,
-          email: sig.email,
-          occupation: sig.occupation,
-          idType: sig.idType,
-          addressProof: sig.addressProof,
-        })),
-        declaration: formData.declaration,
-      }),
+      JSON.stringify(
+        sanitizeSubmitPayload(
+          {
+            products: formData.products,
+            schemeNumbers: formData.schemeNumbers.filter((scheme) => scheme.trim() !== ''),
+            foundingDocument: formData.foundingDocument,
+            sourceOfFunds: formData.sourceOfFunds,
+            bankAccountProof: formData.bankAccountProof,
+            signatories: formData.signatories.map((sig) => ({
+              fullName: sig.fullName,
+              address: sig.address,
+              phone: sig.phone,
+              email: sig.email,
+              occupation: sig.occupation,
+              idType: sig.idType,
+              addressProof: sig.addressProof,
+            })),
+            declaration: formData.declaration,
+          },
+          { arrayLimits: { schemeNumbers: MAX_SCHEME_NUMBERS, signatories: MAX_SIGNATORIES } },
+        ),
+      ),
     )
 
     if (formData.documents.founding) {
@@ -391,14 +435,16 @@ async function handleSubmit() {
       }
     })
 
-    await client.post('/api/kyc/submit', submitData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    await submitKyc(submitData)
 
     showSuccessModal.value = true
-  } catch (error) {
-    console.error('Submission error:', error)
-    toast.error('Failed to submit KYC. Please check your connection and try again.', 'Submission Failed')
+  } catch (error: any) {
+    console.error('Submission error:', error?.response?.data || error)
+    const rawMessage =
+      error?.response?.data?.message || 'Failed to submit KYC. Please check your connection and try again.'
+    const errorMessage = sanitizeErrorMessage(rawMessage)
+
+    toast.error(errorMessage, 'Submission Failed')
   }
   loading.value = false
 }

@@ -32,6 +32,9 @@ export interface FileSelections {
   [key: string]: File | null
 }
 
+/** Maximum number of scheme numbers a corporate client can add. */
+export const MAX_SCHEME_NUMBERS = 10
+
 export interface StepProps {
   formData: CorporateFormData
   errors: Record<string, string>

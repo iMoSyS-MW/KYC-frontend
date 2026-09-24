@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import client from '@/api/client'
+import { submitKyc } from '@/api/kyc'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
-import { sanitizeErrorMessage } from '@/lib/security'
+import {
+  sanitizeErrorMessage,
+  clampNumericInput,
+  sanitizeSubmitPayload,
+  validateDocumentFile,
+} from '@/lib/security'
 import FormPageLayout from '@/layouts/FormPageLayout.vue'
 import SuccessModal from '@/components/ui/SuccessModal.vue'
 import StepPersonalInfo from '@/components/kyc-individual/StepPersonalInfo.vue'
@@ -16,6 +21,7 @@ import {
   STEPS,
   REQUIRED_FIELDS,
   REQUIRED_FIELDS_CONDITIONAL,
+  MAX_POLICY_NUMBERS,
 } from '@/components/kyc-individual/interfaces'
 import type {
   IndividualFormData,
@@ -110,6 +116,14 @@ onMounted(() => window.addEventListener('keydown', handleKeyDown))
 onUnmounted(() => window.removeEventListener('keydown', handleKeyDown))
 
 function handleInputChange(field: keyof IndividualFormData, value: unknown) {
+  if (
+    field === 'monthlyNetIncome' ||
+    field === 'businessMonthlyIncome' ||
+    field === 'otherMonthlyIncome'
+  ) {
+    value = clampNumericInput(typeof value === 'string' ? value : String(value ?? ''))
+  }
+
   ;(formData as unknown as Record<string, unknown>)[field] = value
 
   if (field === 'dateOfBirth') {
@@ -156,6 +170,16 @@ function handleFileChange(field: string, files: FileList | null) {
   }
   const errorKey = fieldErrorMap[field]
 
+  if (file && !validateDocumentFile(file).valid) {
+    if (errorKey) {
+      errors.value = {
+        ...errors.value,
+        [errorKey]: 'Only PDF, PNG or JPG files (max 10 MB) are allowed',
+      }
+    }
+    return
+  }
+
   if (field.includes('.')) {
     const [parent, child] = field.split('.')
     const docs = formData[parent as 'documents'] as unknown as Record<string, File | null>
@@ -176,6 +200,7 @@ function handleFileChange(field: string, files: FileList | null) {
 }
 
 function addPolicyNumber() {
+  if (formData.policyNumbers.length >= MAX_POLICY_NUMBERS) return
   formData.policyNumbers = [...formData.policyNumbers, '']
 }
 
@@ -385,47 +410,52 @@ async function handleSubmit() {
     submitData.append('clientName', `${formData.firstName} ${formData.lastName}`)
     submitData.append(
       'formData',
-      JSON.stringify({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        middleName: formData.middleName,
-        policyNumbers: formData.policyNumbers.filter((p) => p.trim() !== ''),
-        gender: formData.gender,
-        maritalStatus: formData.maritalStatus,
-        physicalAddress: formData.physicalAddress,
-        postalAddress: formData.postalAddress,
-        proofOfAddress: formData.proofOfAddress,
-        idType: formData.idType,
-        idNumber: formData.idNumber,
-        dateOfBirth: formData.dateOfBirth,
-        idExpiryDate: formData.idExpiryDate,
-        countryOfResidence: formData.countryOfResidence,
-        nationality: formData.nationality,
-        immigrationPermit: formData.immigrationPermit,
-        permitExpiryDate: formData.permitExpiryDate,
-        sourceOfIncome: formData.sourceOfIncome,
-        employerName: formData.employerName,
-        employmentStartDate: formData.employmentStartDate,
-        monthlyNetIncome: formData.monthlyNetIncome,
-        businessType: formData.businessType,
-        businessAddress: formData.businessAddress,
-        businessRegistrationNumber: formData.businessRegistrationNumber,
-        businessMonthlyIncome: formData.businessMonthlyIncome,
-        otherIncome: formData.otherIncome,
-        sourceOfFunds: formData.sourceOfFunds,
-        otherMonthlyIncome: formData.otherMonthlyIncome,
-        nextOfKinName: formData.nextOfKinName,
-        nextOfKinRelationship: formData.nextOfKinRelationship,
-        nextOfKinOccupation: formData.nextOfKinOccupation,
-        cellNumber: formData.cellNumber,
-        preferredCommunication: formData.preferredCommunication,
-        telephoneNumber: formData.telephoneNumber,
-        mobileNumber: formData.mobileNumber,
-        emailAddress: formData.emailAddress,
-        isPEP: formData.isPEP,
-        relatedToPEP: formData.relatedToPEP,
-        termsAgreement: formData.termsAgreement,
-      }),
+      JSON.stringify(
+        sanitizeSubmitPayload(
+          {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            middleName: formData.middleName,
+            policyNumbers: formData.policyNumbers.filter((p) => p.trim() !== ''),
+            gender: formData.gender,
+            maritalStatus: formData.maritalStatus,
+            physicalAddress: formData.physicalAddress,
+            postalAddress: formData.postalAddress,
+            proofOfAddress: formData.proofOfAddress,
+            idType: formData.idType,
+            idNumber: formData.idNumber,
+            dateOfBirth: formData.dateOfBirth,
+            idExpiryDate: formData.idExpiryDate,
+            countryOfResidence: formData.countryOfResidence,
+            nationality: formData.nationality,
+            immigrationPermit: formData.immigrationPermit,
+            permitExpiryDate: formData.permitExpiryDate,
+            sourceOfIncome: formData.sourceOfIncome,
+            employerName: formData.employerName,
+            employmentStartDate: formData.employmentStartDate,
+            monthlyNetIncome: formData.monthlyNetIncome,
+            businessType: formData.businessType,
+            businessAddress: formData.businessAddress,
+            businessRegistrationNumber: formData.businessRegistrationNumber,
+            businessMonthlyIncome: formData.businessMonthlyIncome,
+            otherIncome: formData.otherIncome,
+            sourceOfFunds: formData.sourceOfFunds,
+            otherMonthlyIncome: formData.otherMonthlyIncome,
+            nextOfKinName: formData.nextOfKinName,
+            nextOfKinRelationship: formData.nextOfKinRelationship,
+            nextOfKinOccupation: formData.nextOfKinOccupation,
+            cellNumber: formData.cellNumber,
+            preferredCommunication: formData.preferredCommunication,
+            telephoneNumber: formData.telephoneNumber,
+            mobileNumber: formData.mobileNumber,
+            emailAddress: formData.emailAddress,
+            isPEP: formData.isPEP,
+            relatedToPEP: formData.relatedToPEP,
+            termsAgreement: formData.termsAgreement,
+          },
+          { arrayLimits: { policyNumbers: MAX_POLICY_NUMBERS } },
+        ),
+      ),
     )
 
     Object.entries(formData.documents).forEach(([key, file]) => {
@@ -433,10 +463,8 @@ async function handleSubmit() {
         submitData.append(key, file)
       }
     })
-
-    await client.post('/api/kyc/submit', submitData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    
+    await submitKyc(submitData)
 
     showSuccessModal.value = true
   } catch (error: any) {

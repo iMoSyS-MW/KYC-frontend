@@ -100,6 +100,9 @@ export const COMMUNICATION_OPTIONS = [
   'Phone Call', 'SMS', 'Email', 'Post',
 ]
 
+/** Maximum number of policy numbers a customer can add. */
+export const MAX_POLICY_NUMBERS = 10
+
 export const COUNTRIES = [
   'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
   'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',

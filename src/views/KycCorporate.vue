@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import client from '@/api/client'
+import { submitKyc } from '@/api/kyc'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
-import { sanitizeErrorMessage } from '@/lib/security'
+import { sanitizeErrorMessage, sanitizeSubmitPayload, validateDocumentFile } from '@/lib/security'
 import FormPageLayout from '@/layouts/FormPageLayout.vue'
 import SuccessModal from '@/components/ui/SuccessModal.vue'
 import StepClientDetails from '@/components/kyc-corporate/StepClientDetails.vue'
@@ -14,6 +14,7 @@ import StepDeclaration from '@/components/kyc-corporate/StepDeclaration.vue'
 import {
   STEPS,
   REQUIRED_FIELDS,
+  MAX_SCHEME_NUMBERS,
   type CorporateFormData,
   type FileSelections,
 } from '@/components/kyc-corporate/interfaces'
@@ -126,6 +127,16 @@ function handleFileChange(field: string, files: FileList | null) {
   }
   const errorKey = fieldErrorMap[field]
 
+  if (file && !validateDocumentFile(file).valid) {
+    if (errorKey) {
+      errors.value = {
+        ...errors.value,
+        [errorKey]: 'Only PDF, PNG or JPG files (max 10 MB) are allowed',
+      }
+    }
+    return
+  }
+
   if (field.includes('.')) {
     const [parent, child] = field.split('.')
     const docs = formData[parent as 'documents'] as unknown as Record<string, File | null>
@@ -146,6 +157,7 @@ function handleFileChange(field: string, files: FileList | null) {
 }
 
 function addSchemeNumber() {
+  if (formData.schemeNumbers.length >= MAX_SCHEME_NUMBERS) return
   formData.schemeNumbers = [...formData.schemeNumbers, '']
 }
 
@@ -261,27 +273,32 @@ async function handleSubmit() {
     submitData.append('clientName', formData.organizationName)
     submitData.append(
       'formData',
-      JSON.stringify({
-        organizationName: formData.organizationName,
-        products: formData.products,
-        schemeNumbers: formData.schemeNumbers.filter((scheme) => scheme.trim() !== ''),
-        phone: formData.phone,
-        email: formData.email,
-        address: formData.address,
-        identificationDocument: formData.identificationDocument,
-        contactPerson: {
-          name: formData.contactPersonName,
-          phone: formData.contactPersonPhone,
-          email: formData.contactPersonEmail,
-        },
-        addressProof: formData.addressProof,
-        articlesOfAssociation: formData.articlesOfAssociation,
-        directorsId: formData.directorsId,
-        sourceOfFunds: formData.sourceOfFunds,
-        bankAccountProof: formData.bankAccountProof,
-        pepDeclaration: formData.pepDeclaration,
-        declaration: formData.declaration,
-      }),
+      JSON.stringify(
+        sanitizeSubmitPayload(
+          {
+            organizationName: formData.organizationName,
+            products: formData.products,
+            schemeNumbers: formData.schemeNumbers.filter((scheme) => scheme.trim() !== ''),
+            phone: formData.phone,
+            email: formData.email,
+            address: formData.address,
+            identificationDocument: formData.identificationDocument,
+            contactPerson: {
+              name: formData.contactPersonName,
+              phone: formData.contactPersonPhone,
+              email: formData.contactPersonEmail,
+            },
+            addressProof: formData.addressProof,
+            articlesOfAssociation: formData.articlesOfAssociation,
+            directorsId: formData.directorsId,
+            sourceOfFunds: formData.sourceOfFunds,
+            bankAccountProof: formData.bankAccountProof,
+            pepDeclaration: formData.pepDeclaration,
+            declaration: formData.declaration,
+          },
+          { arrayLimits: { schemeNumbers: MAX_SCHEME_NUMBERS } },
+        ),
+      ),
     )
 
     Object.entries(formData.documents).forEach(([key, file]) => {
@@ -290,9 +307,7 @@ async function handleSubmit() {
       }
     })
 
-    await client.post('/api/kyc/submit', submitData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    await submitKyc(submitData)
 
     showSuccessModal.value = true
   } catch (error: any) {

@@ -6,7 +6,10 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const apiTarget = env.VITE_API_URL || 'http://localhost:5000'
+  // VITE_API_URL may include the route prefix (e.g. `http://localhost:5000/api`);
+  // the dev proxy target must be the bare origin so `/api/*` is not forwarded
+  // as `/api/api/*`.
+  const apiTarget = (env.VITE_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '')
 
   return {
     plugins: [vue()],

@@ -14,6 +14,7 @@ import {
   requiredLabel,
   PRODUCTS,
   ID_DOCUMENT_OPTIONS,
+  MAX_SCHEME_NUMBERS,
   type CorporateFormData,
   type StepProps,
 } from './interfaces'
@@ -126,6 +127,7 @@ function onFileChange(field: string, files: FileList | null) {
 
       <Button
         class="w-full sm:w-auto bg-gradient-to-r from-om-gradient-start to-om-gradient-end hover:from-om-gradient-hover-start hover:to-om-gradient-hover-end"
+        :disabled="formData.schemeNumbers.length >= MAX_SCHEME_NUMBERS"
         @click="emit('addSchemeNumber')"
       >
         <Plus class="h-4 w-4 mr-2" />

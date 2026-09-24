@@ -13,6 +13,7 @@ import ErrorIcon from '@/components/kyc-group/ErrorIcon.vue'
 import {
   PROOF_OF_ADDRESS_OPTIONS,
   MARITAL_STATUS_OPTIONS,
+  MAX_POLICY_NUMBERS,
   isRequired,
   requiredLabel,
 } from './interfaces'
@@ -138,6 +139,7 @@ function onFileChange(field: string, files: FileList | null) {
 
       <Button
         class="w-full sm:w-auto bg-gradient-to-r from-om-gradient-start to-om-gradient-end hover:from-om-gradient-hover-start hover:to-om-gradient-hover-end"
+        :disabled="formData.policyNumbers.length >= MAX_POLICY_NUMBERS"
         @click="emit('addPolicyNumber')"
       >
         <Plus class="h-4 w-4 mr-2" />

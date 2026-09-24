@@ -12,6 +12,12 @@ export interface Signatory {
   addressProofFile: File | null
 }
 
+/** Maximum number of scheme numbers a group can add. */
+export const MAX_SCHEME_NUMBERS = 10
+
+/** Maximum number of signatories that can be added. */
+export const MAX_SIGNATORIES = 5
+
 export interface GroupFormData {
   groupName: string
   products: string[]

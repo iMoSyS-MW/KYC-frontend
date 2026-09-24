@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import FloatingInput from '@/components/ui/FloatingInput.vue'
 import Button from '@/components/ui/Button.vue'
 import FloatingSelect from '@/components/ui/FloatingSelect.vue'
 import { SelectItem } from '@/components/ui'
 import { Plus, X } from '@lucide/vue'
+import { validateDocumentFile } from '@/lib/security'
 import ErrorIcon from './ErrorIcon.vue'
+import { MAX_SIGNATORIES } from './interfaces'
 import type { Signatory, SignatoryFileSlot, StepProps } from './interfaces'
 
 const props = defineProps<StepProps>()
@@ -16,6 +19,10 @@ const emit = defineEmits<{
   signatoryIdTypeChange: [index: number, idType: string]
   fileChange: [field: string, files: FileList | null]
 }>()
+
+const atSignatoryCap = () => props.formData.signatories.length >= MAX_SIGNATORIES
+
+const slotFileErrors = ref<Record<string, string>>({})
 
 function signatoryFileSlots(signatory: Signatory, index: number): SignatoryFileSlot[] {
   const slots: SignatoryFileSlot[] = []
@@ -78,7 +85,20 @@ function openFilePicker(event: MouseEvent) {
 }
 
 function onSlotFileChange(field: string, event: Event) {
-  emit('fileChange', field, (event.target as HTMLInputElement).files)
+  const input = event.target as HTMLInputElement
+  const files = input.files
+  if (files && files.length > 0) {
+    for (const file of Array.from(files)) {
+      const result = validateDocumentFile(file)
+      if (!result.valid) {
+        slotFileErrors.value = { ...slotFileErrors.value, [field]: result.error ?? 'Invalid file' }
+        input.value = ''
+        return
+      }
+    }
+  }
+  slotFileErrors.value = { ...slotFileErrors.value, [field]: '' }
+  emit('fileChange', field, files)
 }
 
 function onTextInput(index: number, field: string, value: string | number) {
@@ -102,6 +122,7 @@ function onAddressProofChange(index: number, value: string | undefined) {
 
     <Button
       class="w-full bg-gradient-to-r from-om-gradient-start to-om-gradient-end hover:from-om-gradient-hover-start hover:to-om-gradient-hover-end mb-8"
+      :disabled="atSignatoryCap()"
       @click="emit('addSignatory')"
     >
       <Plus class="h-4 w-4 mr-2" />
@@ -266,7 +287,7 @@ function onAddressProofChange(index: number, value: string | undefined) {
           <input
             type="file"
             class="hidden"
-            accept=".pdf,.doc,.docx,.jpg,.png"
+            accept=".pdf,.png,.jpg,.jpeg"
             @change="onSlotFileChange(slot.field, $event)"
           />
 
@@ -290,6 +311,10 @@ function onAddressProofChange(index: number, value: string | undefined) {
 
           <p v-if="!selectedFileFor(slot.field)" class="text-xs text-gray-400 mt-1 italic">
             Click to select {{ slot.label.toLowerCase() }}
+          </p>
+
+          <p v-if="slotFileErrors[slot.field]" class="text-xs text-om-error font-medium mt-1">
+            {{ slotFileErrors[slot.field] }}
           </p>
 
           <div v-if="errors[slot.errorKey]" class="flex items-center gap-1.5 mt-1">

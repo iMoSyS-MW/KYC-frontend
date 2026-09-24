@@ -116,6 +116,7 @@ function onFileChange(field: string, files: FileList | null) {
           :label="requiredLabel('Identification Number', 'idNumber')"
           :model-value="formData.idNumber"
           :error="!!errors.idNumber"
+          :maxlength="50"
           @update:model-value="emit('inputChange', 'idNumber', $event)"
         >
           <template #label>

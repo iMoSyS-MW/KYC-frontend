@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { FileText, Upload, Trash2, X } from '@lucide/vue'
+import { validateDocumentFile } from '@/lib/security'
 import type { FileUploadAreaProps } from './types'
 
 const props = withDefaults(defineProps<FileUploadAreaProps>(), {
@@ -47,12 +48,13 @@ function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
   const files = input.files
   if (files && files.length > 0) {
-    const file = files[0]
-    const maxBytes = props.maxSizeMB * 1024 * 1024
-    if (file.size > maxBytes) {
-      sizeError.value = `File size exceeds ${props.maxSizeMB} MB limit`
-      input.value = ''
-      return
+    for (const file of Array.from(files)) {
+      const result = validateDocumentFile(file, props.maxSizeMB)
+      if (!result.valid) {
+        sizeError.value = result.error ?? 'Invalid file'
+        input.value = ''
+        return
+      }
     }
     sizeError.value = null
   } else {

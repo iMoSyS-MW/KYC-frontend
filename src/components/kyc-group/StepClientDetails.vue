@@ -6,7 +6,7 @@ import Checkbox from '@/components/ui/Checkbox.vue'
 import Label from '@/components/ui/Label.vue'
 import { Plus, X } from '@lucide/vue'
 import ErrorIcon from './ErrorIcon.vue'
-import { PRODUCTS, isRequired } from './interfaces'
+import { PRODUCTS, MAX_SCHEME_NUMBERS, isRequired } from './interfaces'
 import type { GroupFormData, StepProps } from './interfaces'
 
 defineProps<StepProps>()
@@ -118,6 +118,7 @@ function onSchemeInput(index: number, value: string | number) {
 
       <Button
         class="w-full sm:w-auto mt-2 bg-gradient-to-r from-om-gradient-start to-om-gradient-end hover:from-om-gradient-hover-start hover:to-om-gradient-hover-end"
+        :disabled="formData.schemeNumbers.length >= MAX_SCHEME_NUMBERS"
         @click="emit('addSchemeNumber')"
       >
         <Plus class="h-4 w-4 mr-2" />

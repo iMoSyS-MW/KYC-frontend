@@ -7,6 +7,7 @@ import RadioGroupItem from '@/components/ui/RadioGroupItem.vue'
 import FileUploadArea from '@/components/ui/FileUploadArea.vue'
 import Label from '@/components/ui/Label.vue'
 import ErrorIcon from '@/components/kyc-group/ErrorIcon.vue'
+import { MAX_INCOME_AMOUNT } from '@/lib/security'
 import {
   REQUIRED_FIELDS_CONDITIONAL,
   INCOME_SOURCE_OPTIONS,
@@ -119,6 +120,8 @@ function onFileChange(field: string, files: FileList | null) {
             id="monthlyNetIncome"
             :label="conditionalLabel('Employment', 'monthlyNetIncome')"
             type="number"
+            :min="0"
+            :max="MAX_INCOME_AMOUNT"
             :model-value="formData.monthlyNetIncome"
             :error="!!errors.monthlyNetIncome"
             @update:model-value="emit('inputChange', 'monthlyNetIncome', $event)"
@@ -193,6 +196,8 @@ function onFileChange(field: string, files: FileList | null) {
           id="businessMonthlyIncome"
           :label="conditionalLabel('Business', 'businessMonthlyIncome')"
           type="number"
+          :min="0"
+          :max="MAX_INCOME_AMOUNT"
           :model-value="formData.businessMonthlyIncome"
           :error="!!errors.businessMonthlyIncome"
           @update:model-value="emit('inputChange', 'businessMonthlyIncome', $event)"
@@ -226,6 +231,8 @@ function onFileChange(field: string, files: FileList | null) {
           id="otherMonthlyIncome"
           label="Monthly Income (MWK)"
           type="number"
+          :min="0"
+          :max="MAX_INCOME_AMOUNT"
           :model-value="formData.otherMonthlyIncome"
           @update:model-value="emit('inputChange', 'otherMonthlyIncome', $event)"
         />
